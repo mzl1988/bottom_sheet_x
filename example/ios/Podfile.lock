@@ -1,0 +1,22 @@
+PODS:
+  - bottom_sheet_x (0.0.1):
+    - Flutter
+  - Flutter (1.0.0)
+
+DEPENDENCIES:
+  - bottom_sheet_x (from `.symlinks/plugins/bottom_sheet_x/ios`)
+  - Flutter (from `Flutter`)
+
+EXTERNAL SOURCES:
+  bottom_sheet_x:
+    :path: ".symlinks/plugins/bottom_sheet_x/ios"
+  Flutter:
+    :path: Flutter
+
+SPEC CHECKSUMS:
+  bottom_sheet_x: 2ff936fd212915d37811f947f797f968e7495261
+  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+
+PODFILE CHECKSUM: 1b66dae606f75376c5f2135a8290850eeb09ae83
+
+COCOAPODS: 1.8.4
