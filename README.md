@@ -2,6 +2,6 @@
 
 <table>
   <tr>
-    <td><img src="https://github.com/mzl1988/bottom_sheet_x/raw/master/assets/1.gif" width="250"></td>
+    <td><img src="https://raw.githubusercontent.com/mzl1988/bottom_sheet_x/master/assets/1.gif" width="250"></td>
   </tr>
 </table>
