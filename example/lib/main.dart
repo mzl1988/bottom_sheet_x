@@ -6,8 +6,6 @@ void main() => runApp(MaterialApp(
     ));
 
 class MyApp extends StatelessWidget {
-  ScrollController _scrollController = ScrollController();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,8 +17,12 @@ class MyApp extends StatelessWidget {
           children: <Widget>[
             RaisedButton(
               onPressed: () {
+                ScrollController _scrollController = ScrollController();
+                NavBottomSheetController _navBottomSheetController =
+                    NavBottomSheetController();
                 showNavBottomSheet(
                   context: context,
+                  navBottomSheetController: _navBottomSheetController,
                   backdropColor: Colors.white.withOpacity(0.2),
                   backgroundColor: Colors.red,
                   height: 360.0,
@@ -34,6 +36,12 @@ class MyApp extends StatelessWidget {
                   body: ListView(
                     controller: _scrollController,
                     children: <Widget>[
+                      RaisedButton(
+                        onPressed: () {
+                          _navBottomSheetController.close({'name': 'close'});
+                        },
+                        child: Text('close navBottomSheet'),
+                      ),
                       Container(
                         color: Colors.yellow,
                         height: 200.0,
@@ -66,10 +74,12 @@ class MyApp extends StatelessWidget {
                       ),
                     ],
                   ),
-                );
+                ).then((onValue) {
+                  print(onValue);
+                });
               },
               child: Text('navBottomSheet'),
-            )
+            ),
           ],
         ),
       ),

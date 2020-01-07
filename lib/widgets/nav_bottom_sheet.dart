@@ -1,10 +1,10 @@
 import 'dart:async';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../common/index.dart' show TransparentRoute;
 
-showNavBottomSheet({
+Future showNavBottomSheet({
   @required BuildContext context,
+  @required NavBottomSheetController navBottomSheetController,
   Color backdropColor,
   Color backgroundColor,
   double height,
@@ -14,16 +14,18 @@ showNavBottomSheet({
   Widget body,
 }) {
   assert(context != null);
+  assert(navBottomSheetController != null);
   if (hasScrollView && scrollController == null) {
     assert(scrollController != null);
-    return;
+    // return null;
   }
   if (scrollController != null && hasScrollView == null) {
     assert(hasScrollView != null);
-    return;
+    // return null;
   }
-  Navigator.of(context).push(TransparentRoute(
+  return Navigator.of(context).push(TransparentRoute(
       builder: (BuildContext context) => TestPage(
+          navBottomSheetController: navBottomSheetController,
           backdropColor: backdropColor,
           backgroundColor: backgroundColor,
           height: height,
@@ -34,6 +36,7 @@ showNavBottomSheet({
 }
 
 class TestPage extends StatefulWidget {
+  final NavBottomSheetController navBottomSheetController;
   final Color backdropColor;
   final Color backgroundColor;
   final Widget header;
@@ -44,6 +47,7 @@ class TestPage extends StatefulWidget {
 
   const TestPage(
       {Key key,
+      this.navBottomSheetController,
       this.backdropColor,
       this.backgroundColor,
       this.header,
@@ -58,6 +62,7 @@ class TestPage extends StatefulWidget {
 }
 
 class _TestPageState extends State<TestPage> with TickerProviderStateMixin {
+  NavBottomSheetController _navBottomSheetController;
   AnimationController _animationController;
   ScrollController _scrollController;
   CurvedAnimation _curve;
@@ -67,15 +72,9 @@ class _TestPageState extends State<TestPage> with TickerProviderStateMixin {
   bool _isBacked = false;
   bool _isOnPointer = false;
 
-  // Touch gestures
-  Drag _drag;
   ScrollHoldController _hold;
   void _disposeHold() {
     _hold = null;
-  }
-
-  void _disposeDrag() {
-    _drag = null;
   }
 
   @override
@@ -83,9 +82,15 @@ class _TestPageState extends State<TestPage> with TickerProviderStateMixin {
     // TODO: implement initState
     super.initState();
     _offset = widget.height ?? 320.0;
-    // print(_scrollController is ScrollController);
+    _navBottomSheetController = widget.navBottomSheetController;
     _scrollController = widget.scrollController;
-    setState(() {});
+    _navBottomSheetController.addListener(() {
+      if (_navBottomSheetController.eventType == 'close') {
+        if (_offset == 0.0) {
+          _updateOffset(0.0, widget.height);
+        }
+      }
+    });
     _scrollController.addListener(() {
       _scrollOffset = _scrollController.position.pixels;
       if (_scrollOffset < 0) {
@@ -94,7 +99,7 @@ class _TestPageState extends State<TestPage> with TickerProviderStateMixin {
       }
     });
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 250),
+      duration: Duration(milliseconds: 300),
       vsync: this,
     );
 
@@ -112,11 +117,13 @@ class _TestPageState extends State<TestPage> with TickerProviderStateMixin {
         setState(() {});
       });
     _animationController.forward();
-    Timer(Duration(milliseconds: 250), () {
+    Timer(Duration(milliseconds: 350), () {
       if (end >= widget.height && !_isBacked) {
         _isBacked = true;
         setState(() {});
-        Navigator.of(context).pop();
+        Navigator.of(context).pop(_navBottomSheetController.parameter);
+        _scrollController.dispose();
+        _navBottomSheetController.dispose();
       }
     });
   }
@@ -139,12 +146,16 @@ class _TestPageState extends State<TestPage> with TickerProviderStateMixin {
   }
 
   _onPointerUp(PointerUpEvent e) {
-    _isOnPointer = false;
+    // print('===========: $_offset');
+    if (_offset == 0) {
+      return;
+    }
     if (_offset >= widget.height * 0.4) {
       _updateOffset(_offset, widget.height);
     } else {
       _updateOffset(_offset, 0.0);
     }
+    _isOnPointer = false;
   }
 
   @override
@@ -199,5 +210,23 @@ class _TestPageState extends State<TestPage> with TickerProviderStateMixin {
         ),
       ),
     );
+  }
+}
+
+class NavBottomSheetController extends ChangeNotifier {
+  dynamic _parameter;
+  String _eventType;
+  String get eventType => this._eventType;
+  dynamic get parameter => this._parameter;
+
+  close([dynamic parameter]) {
+    this._parameter = parameter;
+    this._eventType = 'close';
+    notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 }
