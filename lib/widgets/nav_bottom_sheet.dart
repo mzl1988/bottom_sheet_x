@@ -5,6 +5,7 @@ import '../common/index.dart' show TransparentRoute;
 Future showNavBottomSheet({
   @required BuildContext context,
   @required NavBottomSheetController navBottomSheetController,
+  bool isDismissible = false,
   Color backdropColor,
   Color backgroundColor,
   double height,
@@ -26,6 +27,7 @@ Future showNavBottomSheet({
   return Navigator.of(context).push(TransparentRoute(
       builder: (BuildContext context) => TestPage(
           navBottomSheetController: navBottomSheetController,
+          isDismissible: isDismissible,
           backdropColor: backdropColor,
           backgroundColor: backgroundColor,
           height: height,
@@ -37,6 +39,7 @@ Future showNavBottomSheet({
 
 class TestPage extends StatefulWidget {
   final NavBottomSheetController navBottomSheetController;
+  final bool isDismissible;
   final Color backdropColor;
   final Color backgroundColor;
   final Widget header;
@@ -54,7 +57,8 @@ class TestPage extends StatefulWidget {
       this.height,
       this.body,
       this.hasScrollView,
-      this.scrollController})
+      this.scrollController,
+      this.isDismissible})
       : super(key: key);
 
   @override
@@ -156,7 +160,6 @@ class _TestPageState extends State<TestPage> with TickerProviderStateMixin {
     } else {
       _updateOffset(_offset, 0.0);
     }
-    
   }
 
   @override
@@ -168,11 +171,15 @@ class _TestPageState extends State<TestPage> with TickerProviderStateMixin {
         color: widget.backdropColor ?? Colors.transparent,
         child: Column(
           children: <Widget>[
-            Expanded(child: GestureDetector(
-              onTap: () {
-                _updateOffset(_offset, widget.height);
-              },
-            )),
+            Expanded(
+              child: widget.isDismissible
+                  ? GestureDetector(
+                      onTap: () {
+                        _updateOffset(_offset, widget.height);
+                      },
+                    )
+                  : Container(),
+            ),
             Transform.translate(
               offset: Offset(0.0, _offset),
               child: Container(

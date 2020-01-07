@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class StackBottomSheet extends StatefulWidget {
   final BuildContext context;
+  final bool isDismissible;
   final Scaffold body;
   final double sheetHeight;
   final Widget sheetHeader;
@@ -10,6 +11,7 @@ class StackBottomSheet extends StatefulWidget {
   const StackBottomSheet({
     @required this.context,
     @required this.body,
+    this.isDismissible = false,
     this.sheetHeight,
     this.sheetHeader,
     this.sheetBody,
@@ -130,7 +132,7 @@ class _StackBottomSheetState extends State<StackBottomSheet>
             ),
           ),
         ),
-        _offset == _maxOffest
+        _offset == _maxOffest && widget.isDismissible
             ? Row(
                 children: <Widget>[
                   Expanded(

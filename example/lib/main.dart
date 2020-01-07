@@ -10,6 +10,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return StackBottomSheet(
       context: context,
+      isDismissible: true,
       body: Scaffold(
         appBar: AppBar(
           title: const Text('Plugin example app'),
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
                   showNavBottomSheet(
                     context: context,
                     navBottomSheetController: _navBottomSheetController,
+                    isDismissible: true,
                     backdropColor: Colors.white.withOpacity(0.2),
                     backgroundColor: Colors.red,
                     height: 360.0,
