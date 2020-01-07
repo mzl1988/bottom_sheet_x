@@ -147,6 +147,7 @@ class _TestPageState extends State<TestPage> with TickerProviderStateMixin {
 
   _onPointerUp(PointerUpEvent e) {
     // print('===========: $_offset');
+    _isOnPointer = false;
     if (_offset == 0) {
       return;
     }
@@ -155,7 +156,7 @@ class _TestPageState extends State<TestPage> with TickerProviderStateMixin {
     } else {
       _updateOffset(_offset, 0.0);
     }
-    _isOnPointer = false;
+    
   }
 
   @override
