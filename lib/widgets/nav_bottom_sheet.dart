@@ -69,9 +69,11 @@ class TestPage extends StatefulWidget {
 }
 
 class _TestPageState extends State<TestPage> with TickerProviderStateMixin {
-  NavBottomSheetController get _navBottomSheetController => widget.navBottomSheetController;
+  NavBottomSheetController get _navBottomSheetController =>
+      widget.navBottomSheetController;
   AnimationController _animationController;
-  ScrollController get _scrollController => widget.bottomSheetBodyScrollController;
+  ScrollController get _scrollController =>
+      widget.bottomSheetBodyScrollController;
   CurvedAnimation _curve;
   Animation<double> _animation;
   double _scrollOffset = 0.0;
@@ -111,10 +113,10 @@ class _TestPageState extends State<TestPage> with TickerProviderStateMixin {
 
   _scrollControllerListener() {
     _scrollOffset = _scrollController.position.pixels;
-      if (_scrollOffset < 0) {
-        _scrollController.jumpTo(0);
-        _scrollController.position.hold(_disposeHold);
-      }
+    if (_scrollOffset < 0) {
+      _scrollController.jumpTo(0);
+      _hold = _scrollController.position.hold(_disposeHold);
+    }
   }
 
   _updateOffset(double begin, double end) {
@@ -131,7 +133,8 @@ class _TestPageState extends State<TestPage> with TickerProviderStateMixin {
         setState(() {});
         Navigator.of(context).pop(_navBottomSheetController.parameter);
         _scrollController.removeListener(_scrollControllerListener);
-        _navBottomSheetController.removeListener(_navBottomSheetControllerListener);
+        _navBottomSheetController
+            .removeListener(_navBottomSheetControllerListener);
       }
     });
   }

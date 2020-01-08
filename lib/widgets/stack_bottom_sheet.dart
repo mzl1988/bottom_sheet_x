@@ -94,7 +94,7 @@ class _StackBottomSheetState extends State<StackBottomSheet>
     _scrollOffset = _scrollController.position.pixels;
     if (_scrollOffset < 0) {
       _scrollController.jumpTo(0);
-      _scrollController.position.hold(_disposeHold);
+      _hold = _scrollController.position.hold(_disposeHold);
     }
   }
 
