@@ -6,59 +6,62 @@ Future showNavBottomSheet({
   @required BuildContext context,
   @required NavBottomSheetController navBottomSheetController,
   bool isDismissible = false,
-  Color backdropColor,
-  Color backgroundColor,
-  double height,
-  bool hasScrollView,
-  ScrollController scrollController,
-  Widget header,
-  Widget body,
+  Color backdropColor = Colors.transparent,
+  double bottomSheetHeight = 320.0,
+  bool bottomSheetBodyHasScrollView,
+  ScrollController bottomSheetBodyScrollController,
+  Widget bottomSheetHeader,
+  Widget bottomSheetBody,
 }) {
   assert(context != null);
   assert(navBottomSheetController != null);
-  if (hasScrollView && scrollController == null) {
-    assert(scrollController != null);
+  if (bottomSheetBodyHasScrollView && bottomSheetBodyScrollController == null) {
+    assert(bottomSheetBodyScrollController != null);
     // return null;
   }
-  if (scrollController != null && hasScrollView == null) {
-    assert(hasScrollView != null);
+  if (bottomSheetBodyScrollController != null &&
+      bottomSheetBodyHasScrollView == null) {
+    assert(bottomSheetBodyHasScrollView != null);
     // return null;
   }
+
+  double maxHeight =
+      MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
+  bottomSheetHeight =
+      bottomSheetHeight > maxHeight ? maxHeight : bottomSheetHeight;
+
   return Navigator.of(context).push(TransparentRoute(
       builder: (BuildContext context) => TestPage(
           navBottomSheetController: navBottomSheetController,
           isDismissible: isDismissible,
           backdropColor: backdropColor,
-          backgroundColor: backgroundColor,
-          height: height,
-          header: header,
-          hasScrollView: hasScrollView,
-          scrollController: scrollController,
-          body: body)));
+          bottomSheetHeight: bottomSheetHeight,
+          bottomSheetHeader: bottomSheetHeader,
+          bottomSheetBodyHasScrollView: bottomSheetBodyHasScrollView,
+          bottomSheetBodyScrollController: bottomSheetBodyScrollController,
+          bottomSheetBody: bottomSheetBody)));
 }
 
 class TestPage extends StatefulWidget {
   final NavBottomSheetController navBottomSheetController;
   final bool isDismissible;
   final Color backdropColor;
-  final Color backgroundColor;
-  final Widget header;
-  final double height;
-  final Widget body;
-  final bool hasScrollView;
-  final ScrollController scrollController;
+  final Widget bottomSheetHeader;
+  final double bottomSheetHeight;
+  final Widget bottomSheetBody;
+  final bool bottomSheetBodyHasScrollView;
+  final ScrollController bottomSheetBodyScrollController;
 
   const TestPage(
       {Key key,
       this.navBottomSheetController,
+      this.isDismissible,
       this.backdropColor,
-      this.backgroundColor,
-      this.header,
-      this.height,
-      this.body,
-      this.hasScrollView,
-      this.scrollController,
-      this.isDismissible})
+      this.bottomSheetHeader,
+      this.bottomSheetHeight,
+      this.bottomSheetBody,
+      this.bottomSheetBodyHasScrollView,
+      this.bottomSheetBodyScrollController})
       : super(key: key);
 
   @override
@@ -66,15 +69,14 @@ class TestPage extends StatefulWidget {
 }
 
 class _TestPageState extends State<TestPage> with TickerProviderStateMixin {
-  NavBottomSheetController _navBottomSheetController;
+  NavBottomSheetController get _navBottomSheetController => widget.navBottomSheetController;
   AnimationController _animationController;
-  ScrollController _scrollController;
+  ScrollController get _scrollController => widget.bottomSheetBodyScrollController;
   CurvedAnimation _curve;
   Animation<double> _animation;
   double _scrollOffset = 0.0;
   double _offset = 0.0;
   bool _isBacked = false;
-  bool _isOnPointer = false;
 
   ScrollHoldController _hold;
   void _disposeHold() {
@@ -85,23 +87,9 @@ class _TestPageState extends State<TestPage> with TickerProviderStateMixin {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _offset = widget.height ?? 320.0;
-    _navBottomSheetController = widget.navBottomSheetController;
-    _scrollController = widget.scrollController;
-    _navBottomSheetController.addListener(() {
-      if (_navBottomSheetController.eventType == 'close') {
-        if (_offset == 0.0) {
-          _updateOffset(0.0, widget.height);
-        }
-      }
-    });
-    _scrollController.addListener(() {
-      _scrollOffset = _scrollController.position.pixels;
-      if (_scrollOffset < 0) {
-        _scrollController.jumpTo(0);
-        _scrollController.position.hold(_disposeHold);
-      }
-    });
+    _offset = widget.bottomSheetHeight;
+    _navBottomSheetController.addListener(_navBottomSheetControllerListener);
+    _scrollController.addListener(_scrollControllerListener);
     _animationController = AnimationController(
       duration: Duration(milliseconds: 300),
       vsync: this,
@@ -110,7 +98,23 @@ class _TestPageState extends State<TestPage> with TickerProviderStateMixin {
     _curve =
         CurvedAnimation(parent: _animationController, curve: Curves.easeOut);
 
-    _updateOffset(widget.height, 0.0);
+    _updateOffset(widget.bottomSheetHeight, 0.0);
+  }
+
+  _navBottomSheetControllerListener() {
+    if (_navBottomSheetController.eventType == 'close') {
+      if (_offset == 0.0) {
+        _updateOffset(0.0, widget.bottomSheetHeight);
+      }
+    }
+  }
+
+  _scrollControllerListener() {
+    _scrollOffset = _scrollController.position.pixels;
+      if (_scrollOffset < 0) {
+        _scrollController.jumpTo(0);
+        _scrollController.position.hold(_disposeHold);
+      }
   }
 
   _updateOffset(double begin, double end) {
@@ -122,19 +126,18 @@ class _TestPageState extends State<TestPage> with TickerProviderStateMixin {
       });
     _animationController.forward();
     Timer(Duration(milliseconds: 350), () {
-      if (end >= widget.height && !_isBacked) {
+      if (end >= widget.bottomSheetHeight && !_isBacked) {
         _isBacked = true;
         setState(() {});
         Navigator.of(context).pop(_navBottomSheetController.parameter);
-        _scrollController.dispose();
-        _navBottomSheetController.dispose();
+        _scrollController.removeListener(_scrollControllerListener);
+        _navBottomSheetController.removeListener(_navBottomSheetControllerListener);
       }
     });
   }
 
   _onPointerMove(PointerMoveEvent e, [bool flag = false]) {
     if (_scrollOffset <= 0 && e.delta.dy > 0 || flag) {
-      _isOnPointer = true;
       _offset += e.delta.dy;
     } else if (e.delta.dy < 0 && _offset > 0) {
       _offset += e.delta.dy;
@@ -143,20 +146,16 @@ class _TestPageState extends State<TestPage> with TickerProviderStateMixin {
     if (_offset < 0) {
       _offset = 0.0;
     }
-    if (_offset == 0 && _isOnPointer && !flag) {
-      _scrollController.jumpTo(_scrollOffset - e.delta.dy);
-    }
     setState(() {});
   }
 
   _onPointerUp(PointerUpEvent e) {
-    // print('===========: $_offset');
-    _isOnPointer = false;
     if (_offset == 0) {
       return;
     }
-    if (_offset >= widget.height * 0.4) {
-      _updateOffset(_offset, widget.height);
+    // print('===========: $_offset');
+    if (_offset >= widget.bottomSheetHeight * 0.4) {
+      _updateOffset(_offset, widget.bottomSheetHeight);
     } else {
       _updateOffset(_offset, 0.0);
     }
@@ -168,14 +167,14 @@ class _TestPageState extends State<TestPage> with TickerProviderStateMixin {
       removeTop: true,
       context: context,
       child: Material(
-        color: widget.backdropColor ?? Colors.transparent,
+        color: _offset == 0 ? widget.backdropColor : Colors.transparent,
         child: Column(
           children: <Widget>[
             Expanded(
               child: widget.isDismissible
                   ? GestureDetector(
                       onTap: () {
-                        _updateOffset(_offset, widget.height);
+                        _updateOffset(_offset, widget.bottomSheetHeight);
                       },
                     )
                   : Container(),
@@ -183,11 +182,11 @@ class _TestPageState extends State<TestPage> with TickerProviderStateMixin {
             Transform.translate(
               offset: Offset(0.0, _offset),
               child: Container(
-                color: widget.backgroundColor ?? Colors.white,
-                height: widget.height,
+                color: Colors.transparent,
+                height: widget.bottomSheetHeight,
                 child: Column(
                   children: <Widget>[
-                    widget.header == null
+                    widget.bottomSheetHeader == null
                         ? Container()
                         : Listener(
                             onPointerMove: (PointerMoveEvent e) {
@@ -197,17 +196,18 @@ class _TestPageState extends State<TestPage> with TickerProviderStateMixin {
                             child: Row(
                               children: <Widget>[
                                 Expanded(
-                                  child: widget.header,
+                                  child: widget.bottomSheetHeader,
                                 )
                               ],
                             ),
                           ),
                     Expanded(
-                      flex: 1,
                       child: Listener(
                         onPointerMove: _onPointerMove,
                         onPointerUp: _onPointerUp,
-                        child: widget.body == null ? Container() : widget.body,
+                        child: widget.bottomSheetBody == null
+                            ? Container()
+                            : widget.bottomSheetBody,
                       ),
                     ),
                   ],

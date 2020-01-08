@@ -1,61 +1,82 @@
-# bottom_sheet_x
-
-### StackBottomSheet
-
-<table>
-  <tr>
-    <td><img src="https://raw.githubusercontent.com/mzl1988/bottom_sheet_x/master/assets/stack.gif" width="250"></td>
-  </tr>
-</table>
-
-``` dart
+import 'package:flutter/material.dart';
 import 'package:bottom_sheet_x/bottom_sheet_x.dart';
 
-final ScrollController _scrollController = ScrollController();
-final StackBottomSheetController _stackBottomSheetController = StackBottomSheetController();
+class NavBottomSheetTest extends StatelessWidget {
+  final ScrollController _scrollController = ScrollController();
+  final NavBottomSheetController _navBottomSheetController =
+      NavBottomSheetController();
 
-// function show close
-// _stackBottomSheetController.show();
-// _stackBottomSheetController.close();
-
-return StackBottomSheet(
-      context: context,
-      stackBottomSheetController: _stackBottomSheetController,
-      body: Scaffold(
-        appBar: AppBar(
-          title: const Text('StackBottomSheet'),
-        ),
-        body: _body,
+  @override
+  Widget build(BuildContext context) {
+    Widget _bottomSheetHeader = ClipRRect(
+      borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(16),
+        topRight: Radius.circular(16),
       ),
-      isDismissible: true,
-      backdropColor: Colors.white.withOpacity(0.1),
-      bottomSheetHeight: 600.0,
-      bottomSheetHeader: _bottomSheetHeader,
-      bottomSheetBody: _bottomSheetBody,
-      bottomSheetBodyHasScrollView: true,
-      bottomSheetBodyScrollController: _scrollController,
-);
+      child: Container(
+        color: Colors.red.withOpacity(0.8),
+        height: 50.0,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Container(
+              height: 6.0,
+              width: 100.0,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.all(
+                  Radius.circular(6.0),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
 
-```
+    Widget _bottomSheetBody = ListView(
+      controller: _scrollController,
+      children: <Widget>[
+        RaisedButton(
+          onPressed: () {
+            _navBottomSheetController.close({'name': 'lili', 'age': 18});
+          },
+          child: Text('close navBottomSheet'),
+        ),
+        Container(
+          color: Colors.yellow,
+          height: 200.0,
+          child: Text('data'),
+        ),
+        Container(
+          color: Colors.green,
+          height: 200.0,
+          child: Text('data'),
+        ),
+        Container(
+          color: Colors.indigo,
+          height: 200.0,
+          child: Text('data'),
+        ),
+        Container(
+          color: Colors.yellow,
+          height: 200.0,
+          child: Text('data'),
+        ),
+        Container(
+          color: Colors.green,
+          height: 200.0,
+          child: Text('data'),
+        ),
+        Container(
+          color: Colors.indigo,
+          height: 200.0,
+          child: Text('data'),
+        ),
+      ],
+    );
 
-### NavBottomSheet
-
-<table>
-  <tr>
-    <td><img src="https://raw.githubusercontent.com/mzl1988/bottom_sheet_x/master/assets/nav.gif" width="250"></td>
-  </tr>
-</table>
-
-``` dart
-import 'package:bottom_sheet_x/bottom_sheet_x.dart';
-
-final ScrollController _scrollController = ScrollController();
-final NavBottomSheetController _navBottomSheetController = NavBottomSheetController();
-
-// function show close
-// _stackBottomSheetController.close();
-
-return Scaffold(
+    return Scaffold(
       appBar: AppBar(
         title: Text('NavBottomSheet'),
       ),
@@ -92,7 +113,7 @@ return Scaffold(
           Image.network(
               'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1578456212689&di=a907d731b6eaebde3509f58c5a830a23&imgtype=0&src=http%3A%2F%2Ft8.baidu.com%2Fit%2Fu%3D2857883419%2C1187496708%26fm%3D79%26app%3D86%26f%3DJPEG%3Fw%3D1280%26h%3D763'),
         ],
-    ),
-);
-
-```
+      ),
+    );
+  }
+}
