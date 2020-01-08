@@ -4,7 +4,7 @@
 
 <table>
   <tr>
-    <td><img src="https://raw.githubusercontent.com/mzl1988/bottom_sheet_x/master/assets/stack.gif" width="250"></td>
+    <td><img src="https://github.com/mzl1988/bottom_sheet_x/blob/master/example/assets/stack.gif?raw=true" width="250"></td>
   </tr>
 </table>
 
@@ -42,7 +42,7 @@ return StackBottomSheet(
 
 <table>
   <tr>
-    <td><img src="https://raw.githubusercontent.com/mzl1988/bottom_sheet_x/master/assets/nav.gif" width="250"></td>
+    <td><img src="https://github.com/mzl1988/bottom_sheet_x/blob/master/example/assets/nav.gif?raw=true" width="250"></td>
   </tr>
 </table>
 
